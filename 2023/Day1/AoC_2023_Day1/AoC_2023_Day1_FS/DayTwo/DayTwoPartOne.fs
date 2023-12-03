@@ -9,11 +9,14 @@ let colors = [|"red"; "green"; "blue";|]
 
 let findDigit value = value |> Seq.find(fun (s : char) -> Char.IsDigit(s)) |> Char.ToString
 
-let getFirstValue (input : string) = input.Remove(0, 3) |> findDigit |> 
+let getFirstSemicolonIndex (value : string) = value |> Seq.findIndex(fun (s : char) -> Char.ToString(s).Equals(";")) |> int
 
-let getFirstColorValue
+let getFirstValue (input : string) = input.Remove(0, 3) |> findDigit
+
+//let getFirstColorValue
 
 let result = input
            |> Seq.removeManyAt 0 5
-           |> Seq.fold(fun a s -> 
-           a) 0
+           |> Seq.fold(fun a s -> a + (getFirstSemicolonIndex(s) |> int) ) 0
+
+printfn "%A" result

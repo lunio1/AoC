@@ -1,26 +1,23 @@
-﻿namespace AoC_2023_Day1;
+﻿namespace AoC_2023_CS.DayOne;
 
 internal class part2
 {
     public static void PartTwo()
     {
-        string[] lines = File.ReadAllLines("../../../input.txt");
+        string[] lines = File.ReadAllLines("../../../DayOne/input.txt");
 
         string[] numberStrings = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
         string[] reverseNumberStrings = ["eno", "owt", "eerht", "ruof", "evif", "xis", "neves", "thgie", "enin"];
-        
+
         int result = 0;
 
         foreach (string line in lines)
         {
-            int firstNumber = 0;
-            int secondNumber = 0;
             string firstString = string.Empty;
             string secondString = string.Empty;
 
             Dictionary<string, int> keyValuePairsStringOne = new Dictionary<string, int>();
             Dictionary<string, int> keyValuePairsStringTwo = new Dictionary<string, int>();
-
 
             // First String
             firstString = new string(line.SkipWhile(c => !char.IsDigit(c))
@@ -29,7 +26,7 @@ internal class part2
 
             keyValuePairsStringOne.Add(firstString, line.IndexOf(firstString));
 
-            foreach (string numberString in numberStrings) 
+            foreach (string numberString in numberStrings)
             {
                 int index = line.IndexOf(numberString);
                 if (index != -1)
@@ -39,8 +36,6 @@ internal class part2
             firstString = keyValuePairsStringOne.OrderBy(x => x.Value).First().Key;
 
             // Second String
-            
-
             char[] reversedLineCharArray = line.ToCharArray();
             Array.Reverse(reversedLineCharArray);
             string reversedLine = new string(reversedLineCharArray);
@@ -62,10 +57,10 @@ internal class part2
 
             if (firstString.Length > 1)
                 firstString = Convert.ToString(ConvertStringToInt(firstString));
-            
+
             if (secondString.Length > 1)
                 secondString = Convert.ToString(ConvertReversedStringToInt(secondString));
-            
+
             result = result + Convert.ToInt32(firstString + secondString);
         }
 
@@ -100,8 +95,8 @@ internal class part2
     }
 
     public static int ConvertStringToInt(string input)
-    { 
-        switch (input) 
+    {
+        switch (input)
         {
             case "one":
                 return 1;
@@ -109,7 +104,7 @@ internal class part2
                 return 2;
             case "three":
                 return 3;
-            case "four": 
+            case "four":
                 return 4;
             case "five":
                 return 5;

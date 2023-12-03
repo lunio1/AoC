@@ -1,10 +1,10 @@
-﻿namespace AoC_2023_Day1;
+﻿namespace AoC_2023_CS.DayOne;
 
 internal class part1
 {
     public static void PartOne()
     {
-        string[] lines = File.ReadAllLines("../../../input.txt");
+        string[] lines = File.ReadAllLines("../../../DayOne/input.txt");
 
         int result = 0;
 

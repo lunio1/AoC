@@ -1,54 +1,70 @@
-﻿//module DayTwo
-
-open System
+﻿open System
 open System.IO
 
-let input = File.ReadLines "C:\\repos\\AoC\\2023\\Day1\\AoC_2023_Day1\\AoC_2023_Day1_FS\\DayTwo\\input.txt" |> Seq.map(fun s -> s.Trim()) |> List.ofSeq 
+let input =
+    File.ReadLines "C:\\repos\\AoC\\2023\\Day1\\AoC_2023_Day1\\AoC_2023_Day1_FS\\daythree\\Input.txt"
+    |> Seq.map (fun s -> s.Trim())
+    |> List.ofSeq
 
-let example = @"Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green".Split("\n") |> Array.map (fun s -> s.Trim()) |> List.ofSeq
+type Coordinate = {YPosition : int; XPosition : int; Value : Char}
+type NumberRange = {YPosition : int; XMinPosition : int; XMaxPosition : int; Value : int;}
 
-let parse (line: string) : int =
+let example =
+    @"467..114..
+                ...*......
+                ..35..633.
+                ......#...
+                617*......
+                .....+.58.
+                ..592.....
+                ......755.
+                ...$.*....
+                .664.598.."
+        .Split("\n")
+    |> Array.map (fun s -> s.Trim())
+    |> List.ofSeq
 
-    let parseHands (subGame : string) =
-        let trimmedSubGame = subGame.Trim()
-        let hands = trimmedSubGame.Split(",")
-        hands
 
-    let findRed (hand : string) =
-        let value = hand.Split(" ")[0] |> int
-        let color = hand.Split(" ")[1]
-        if (color.Contains("red")) then
-            value
-        else
-            0
+let parse value = 
+    let parseToCoordinates (value, yPos) =
+        let x,v = value
+        {YPosition = yPos; XPosition = x; Value = v }
 
-    let findGreen (hand : string) =
-        let value = hand.Split(" ")[0] |> int
-        let color = hand.Split(" ")[1]
-        if (color.Contains("green")) then
-            value
-        else
-            0
-        
-    let findBlue (hand : string) =
-        let value = hand.Split(" ")[0] |> int
-        let color = hand.Split(" ")[1]
-        if (color.Contains("blue")) then
-            value
-        else
-            0
+    let y,a = value
+    let indexedLine = a |> Seq.indexed
+    let coordinates = indexedLine |> Seq.map(fun s -> parseToCoordinates(s, y))
+    coordinates
+    
+let coordinates = example |> Seq.indexed |> Seq.map parse |> Seq.concat
 
-    let games = line.Split(":")[1]
-    let trimmedGames = games.Trim()
-    let subGames = trimmedGames.Split(";")
-    let hands = subGames |> Array.map parseHands
-    let maxRed = hands |> Array.map(fun s -> s |> Array.map(fun x -> x.Trim() |> findRed) |> Seq.max) |> Seq.max
-    let maxBlue = hands |> Array.map(fun s -> s |> Array.map(fun x -> x.Trim() |> findBlue) |> Seq.max) |> Seq.max
-    let maxGreen = hands |> Array.map(fun s -> s |> Array.map(fun x -> x.Trim() |> findGreen) |> Seq.max) |> Seq.max
-    maxRed * maxBlue * maxGreen
+let symbols = coordinates |> Seq.filter(fun x -> (Char.IsPunctuation x.Value || Char.IsSymbol x.Value) && (x.Value <> '.'))
 
-input |> List.fold (fun acc s ->  acc + (parse(s))) 0
+let parseNumbers (value : Coordinate) =
+    ()
+
+let numbers = coordinates |> Seq.filter(fun x -> Char.IsDigit x.Value)
+
+let getFirstDigits (value : Coordinate) =
+    let charBefore = numbers |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition) && (s.XPosition = value.XPosition - 1))
+    match charBefore with
+        | Some(value) -> {YPosition = -1; XPosition = -1; Value = ' '}
+        | None -> value
+
+let getLastDigits (value : Coordinate) =
+    let charBefore = numbers |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition) && (s.XPosition = value.XPosition + 1))
+    match charBefore with
+        | Some(value) -> {YPosition = -1; XPosition = -1; Value = ' '}
+        | None -> value
+
+
+let combineDigits (coordinateOne : Coordinate, coordinateTwo : Coordinate) =
+    if coordinateTwo.XPosition - coordinateOne.XPosition = 1 then
+        {YPosition = coordinateOne.YPosition; XMinPosition = coordinateOne.XPosition; XMaxPosition = coordinateTwo.XPosition; Value = (coordinateOne.Value.ToString() + coordinateTwo.Value.ToString()) |> int;}
+    else
+        let valueBetween = numbers |> Seq.tryFind(fun s -> (s.XPosition = coordinateOne.XPosition + 1) && (s.YPosition = coordinateOne.YPosition)) 
+        {YPosition = coordinateOne.YPosition; XMinPosition = coordinateOne.XPosition; XMaxPosition = coordinateTwo.XPosition; Value = (coordinateOne.Value.ToString() + valueBetween.Value.Value.ToString() + coordinateTwo.Value.ToString()) |> int;}
+
+let firstDigits = numbers |> Seq.map getFirstDigits |> Seq.filter(fun s -> s.Value <> ' ')
+let lastDigits = numbers |> Seq.map getLastDigits |> Seq.filter(fun s -> s.Value <> ' ')
+let digitMap = Seq.zip firstDigits lastDigits
+let combinedDigits = digitMap |> Seq.map combineDigits

@@ -10,16 +10,7 @@ type Coordinate = {YPosition : int; XPosition : int; Value : Char}
 type NumberRange = {YPosition : int; XMinPosition : int; XMaxPosition : int; Value : int;}
 
 let example =
-    @"467..114..
-                ...*......
-                ..35..633.
-                ......#...
-                617*......
-                .....+.58.
-                ..592.....
-                ......755.
-                ...$.*....
-                .664.598.."
+    @"..*10"
         .Split("\n")
     |> Array.map (fun s -> s.Trim())
     |> List.ofSeq
@@ -29,20 +20,16 @@ let parse value =
     let parseToCoordinates (value, yPos) =
         let x,v = value
         {YPosition = yPos; XPosition = x; Value = v }
-
     let y,a = value
     let indexedLine = a |> Seq.indexed
     let coordinates = indexedLine |> Seq.map(fun s -> parseToCoordinates(s, y))
     coordinates
     
-let coordinates = example |> Seq.indexed |> Seq.map parse |> Seq.concat
-
+let coordinates = input |> Seq.indexed |> Seq.map parse |> Seq.concat |> Seq.cache
+ 
 let symbols = coordinates |> Seq.filter(fun x -> (Char.IsPunctuation x.Value || Char.IsSymbol x.Value) && (x.Value <> '.'))
 
-let parseNumbers (value : Coordinate) =
-    ()
-
-let numbers = coordinates |> Seq.filter(fun x -> Char.IsDigit x.Value)
+let numbers = coordinates |> Seq.filter(fun x -> Char.IsDigit x.Value) |> Seq.cache
 
 let getFirstDigits (value : Coordinate) =
     let charBefore = numbers |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition) && (s.XPosition = value.XPosition - 1))
@@ -60,11 +47,45 @@ let getLastDigits (value : Coordinate) =
 let combineDigits (coordinateOne : Coordinate, coordinateTwo : Coordinate) =
     if coordinateTwo.XPosition - coordinateOne.XPosition = 1 then
         {YPosition = coordinateOne.YPosition; XMinPosition = coordinateOne.XPosition; XMaxPosition = coordinateTwo.XPosition; Value = (coordinateOne.Value.ToString() + coordinateTwo.Value.ToString()) |> int;}
+    else if coordinateTwo.XPosition = coordinateOne.XPosition then
+        {YPosition = coordinateOne.YPosition; XMinPosition = coordinateOne.XPosition; XMaxPosition = coordinateTwo.XPosition; Value = (coordinateOne.Value.ToString()|> int;)}
     else
         let valueBetween = numbers |> Seq.tryFind(fun s -> (s.XPosition = coordinateOne.XPosition + 1) && (s.YPosition = coordinateOne.YPosition)) 
         {YPosition = coordinateOne.YPosition; XMinPosition = coordinateOne.XPosition; XMaxPosition = coordinateTwo.XPosition; Value = (coordinateOne.Value.ToString() + valueBetween.Value.Value.ToString() + coordinateTwo.Value.ToString()) |> int;}
 
-let firstDigits = numbers |> Seq.map getFirstDigits |> Seq.filter(fun s -> s.Value <> ' ')
+let firstDigits = 
+    numbers 
+    |> Seq.map getFirstDigits 
+    |> Seq.filter(fun s -> s.Value <> ' ')
+
 let lastDigits = numbers |> Seq.map getLastDigits |> Seq.filter(fun s -> s.Value <> ' ')
 let digitMap = Seq.zip firstDigits lastDigits
-let combinedDigits = digitMap |> Seq.map combineDigits
+let combinedDigits = digitMap |> Seq.map combineDigits |> Seq.cache
+
+let calculateAdjcentValues (value : Coordinate, currentResult : int) =
+    let getInlineNumber (value : NumberRange option) =
+        match value with
+            | Some(value) -> value.Value
+            | None -> 0
+ 
+    let numberBehind = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition) && (s.XMaxPosition = value.XPosition - 1)) |> getInlineNumber
+    let numberAfter = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition) && (s.XMinPosition = value.XPosition + 1)) |> getInlineNumber
+
+    let upperNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition - 1) && ((s.XMinPosition = value.XPosition) || (s.XMaxPosition = value.XPosition) || (s.XMinPosition = value.XPosition - 1))) |> getInlineNumber
+    let upperLeftNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition - 1) && (s.XMaxPosition = value.XPosition - 1)) |> getInlineNumber
+    let upperRightNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition - 1) && (s.XMinPosition = value.XPosition + 1)) |> getInlineNumber
+    
+    let lowerNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition + 1) && ((s.XMinPosition = value.XPosition) || (s.XMaxPosition = value.XPosition) || (s.XMinPosition = value.XPosition - 1))) |> getInlineNumber
+    let lowerLeftNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition + 1) && (s.XMaxPosition = value.XPosition - 1)) |> getInlineNumber
+    let lowerRightNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition + 1) && (s.XMinPosition = value.XPosition + 1)) |> getInlineNumber
+    
+    let result = numberBehind + numberAfter + upperNumber + lowerNumber + upperLeftNumber + upperRightNumber + lowerLeftNumber + lowerRightNumber
+
+    printfn "%A" ($"-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    printfn "%A" ($"Line: {value.YPosition + 1}; Numberbehind: {numberBehind}; NumberAfter: {numberAfter}; upperNumber: {upperNumber}; lowerNumber: {lowerNumber}; upperLeftNumber: {upperLeftNumber}; upperRightNumber: {upperRightNumber}; lowerLeftNumber: {lowerLeftNumber}; lowerRightNumber: {lowerRightNumber}; Result: {result}; CurrentMaxValue: {currentResult} ")
+    printfn "%A" ($"-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    result
+
+let result = symbols |> Seq.fold(fun a s -> (a + calculateAdjcentValues(s, a))) 0
+
+printfn "%A" result

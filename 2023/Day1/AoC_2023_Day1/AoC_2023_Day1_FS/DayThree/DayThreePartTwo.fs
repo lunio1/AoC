@@ -1,4 +1,6 @@
-﻿open System
+﻿module DayThreePartTwo
+
+open System
 open System.IO
 
 let input =

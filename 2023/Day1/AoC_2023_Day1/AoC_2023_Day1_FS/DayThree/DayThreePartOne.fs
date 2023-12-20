@@ -1,4 +1,6 @@
-﻿open System
+﻿module DayThreePartOne
+
+open System
 open System.IO
 
 let input =
@@ -27,7 +29,7 @@ let parse value =
     
 let coordinates = input |> Seq.indexed |> Seq.map parse |> Seq.concat 
  
-let gears = coordinates |> Seq.filter(fun x -> (x.Value = '*'))
+let symbols = coordinates |> Seq.filter(fun x -> (Char.IsPunctuation x.Value || Char.IsSymbol x.Value) && (x.Value <> '.'))
 
 let numbers = coordinates |> Seq.filter(fun x -> Char.IsDigit x.Value)
 
@@ -79,15 +81,13 @@ let calculateAdjcentValues (value : Coordinate, currentResult : int) =
     let lowerLeftNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition + 1) && ((s.XMaxPosition = value.XPosition - 1 && s.XMinPosition = value.XPosition - 3) || (s.XMinPosition = value.XPosition - 1 && s.XMaxPosition = value.XPosition - 1) || (s.XMinPosition = value.XPosition - 2 && s.XMaxPosition = value.XPosition - 1))) |> getInlineNumber
     let lowerRightNumber = combinedDigits |> Seq.tryFind(fun s -> (s.YPosition = value.YPosition + 1) && ((s.XMinPosition = value.XPosition + 1 && s.XMaxPosition = value.XPosition + 3) || (s.XMinPosition = value.XPosition + 1 && s.XMaxPosition = value.XPosition + 1) || (s.XMinPosition = value.XPosition + 1 && s.XMaxPosition = value.XPosition + 2))) |> getInlineNumber
     
-    let adjcentNumber = [numberBehind; numberAfter; upperNumber; upperLeftNumber; upperRightNumber; lowerNumber; lowerLeftNumber; lowerRightNumber;]
+    let result = numberBehind + numberAfter + upperNumber + lowerNumber + upperLeftNumber + upperRightNumber + lowerLeftNumber + lowerRightNumber
 
-    let adjecntNumbersOverZero = adjcentNumber |> Seq.fold(fun a s -> (if s = 0 then a + 0 else a + 1)) 0
+    printfn "%A" ($"-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    printfn "%A" ($"Line: {value.YPosition + 1}; Numberbehind: {numberBehind}; NumberAfter: {numberAfter}; upperNumber: {upperNumber}; lowerNumber: {lowerNumber}; upperLeftNumber: {upperLeftNumber}; upperRightNumber: {upperRightNumber}; lowerLeftNumber: {lowerLeftNumber}; lowerRightNumber: {lowerRightNumber}; Result: {result}; CurrentMaxValue: {currentResult} ")
+    printfn "%A" ($"-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    result
 
-    if adjecntNumbersOverZero = 2 then
-        adjcentNumber |> Seq.fold(fun a s -> if s = 0 then a else a * s ) 1
-    else
-        0
-
-let result = gears |> Seq.fold(fun a s -> (a + calculateAdjcentValues(s, a))) 0
+let result = symbols |> Seq.fold(fun a s -> (a + calculateAdjcentValues(s, a))) 0
 
 printfn "%A" result

@@ -7,7 +7,7 @@ let input =
     |> List.ofSeq
 
 
-type card = {winningNumbers : int seq; numbers : int seq;}
+type card = {gameId: int; winningNumbers : int seq; numbers : int seq;}
 
 let example =
     @"Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
@@ -24,29 +24,26 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11"
 
 
 let parseCards (value : string) =
-    let cardWithoutGameNumber = value.Split(':') |> Array.removeAt 0 |> Seq.ofArray
-    let cardValues = cardWithoutGameNumber |> Seq.map(fun s ->  s.Split('|') |> Seq.ofArray)
-    let numbers = cardValues |> Seq.map(fun s -> s |> Seq.map(fun s -> s.Split(' '))) |> Seq.map(fun s -> s |> Seq.map(fun s -> s |> Seq.filter(fun s -> s <> "") |> Seq.map int))
-    let winningNumbers = numbers |> Seq.map(fun s -> s |> Seq.head)
-    let possibleWinningNumbers = numbers |> Seq.map(fun s -> s |> Seq.last)
+    let splitCard = value.Split(':') |> Array.map(fun s -> s.Split('|')) |> Array.concat
+    
+    printfn "%A" splitCard[0]
 
-    {winningNumbers = Seq.head winningNumbers; numbers = Seq.head possibleWinningNumbers}
+    let gameId = splitCard[0].Split(' ') |> Array.map(fun s -> s.Trim()) |> Array.item 1 |> int
+    let winningNumbers = splitCard[1].Split(' ') |> Array.filter(fun s -> s <> "") |> Array.map(fun s -> s |> int) |> Seq.ofArray
+    let possibleWinningNumbers = splitCard[2].Split(' ') |> Array.filter(fun s -> s <> "") |> Array.map(fun s -> s |> int) |> Seq.ofArray
+    {gameId = gameId; winningNumbers = winningNumbers; numbers = possibleWinningNumbers}
 
-let cards = input |> Seq.map parseCards
+let cards = example |> Seq.map parseCards
+printfn "%A" cards
 
-
-let calculateResult (card : card ) : int=
+let calculateMatches (card : card ) =
     
     let matchNumbers (value : int) =
         card.numbers |> Seq.filter(fun s -> s = value)
 
-    let matches = card.winningNumbers |> Seq.map matchNumbers |> Seq.concat
-    let isAnyNumber = matches |> Seq.fold(fun a s -> if s > 0 then a + 1 else 0 )0
-    if isAnyNumber >= 1 then
-        matches |> Seq.fold(fun a s -> if a = 0 then a + 1 else a * 2)0
-    else
-        0
+    let matches = card.winningNumbers |> Seq.map matchNumbers |> Seq.concat |> List.ofSeq
+    matches.Length
 
-let result = cards |> Seq.fold(fun a s -> a + calculateResult s)0
+let result = cards |> Seq.map calculateMatches
 
 printfn "%A" result

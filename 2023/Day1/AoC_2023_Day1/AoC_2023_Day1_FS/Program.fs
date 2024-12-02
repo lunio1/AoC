@@ -7,7 +7,7 @@ let input =
     |> List.ofSeq
 
 
-type card = {gameId: int; winningNumbers : int seq; numbers : int seq;}
+type card = {gameId: int; winningNumbers : int seq; numbers : int seq; matches : int;}
 
 let example =
     @"Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
@@ -31,19 +31,24 @@ let parseCards (value : string) =
     let gameId = splitCard[0].Split(' ') |> Array.map(fun s -> s.Trim()) |> Array.item 1 |> int
     let winningNumbers = splitCard[1].Split(' ') |> Array.filter(fun s -> s <> "") |> Array.map(fun s -> s |> int) |> Seq.ofArray
     let possibleWinningNumbers = splitCard[2].Split(' ') |> Array.filter(fun s -> s <> "") |> Array.map(fun s -> s |> int) |> Seq.ofArray
-    {gameId = gameId; winningNumbers = winningNumbers; numbers = possibleWinningNumbers}
+    {gameId = gameId; winningNumbers = winningNumbers; numbers = possibleWinningNumbers; matches = 0}
 
 let cards = example |> Seq.map parseCards
 printfn "%A" cards
 
-let calculateMatches (card : card ) =
+let calculateMatches (card : card ) : card =
     
     let matchNumbers (value : int) =
         card.numbers |> Seq.filter(fun s -> s = value)
 
-    let matches = card.winningNumbers |> Seq.map matchNumbers |> Seq.concat |> List.ofSeq
-    matches.Length
+    let amount = card.winningNumbers |> Seq.map matchNumbers |> Seq.concat |> List.ofSeq
+    {gameId = card.gameId; winningNumbers = card.winningNumbers; numbers = card.numbers; matches = amount.Length}
 
-let result = cards |> Seq.map calculateMatches
 
-printfn "%A" result
+let parsedCards = cards |> Seq.map calculateMatches
+
+let addMatches (card : card) : card =
+
+    
+
+printfn "%A" parsedCards

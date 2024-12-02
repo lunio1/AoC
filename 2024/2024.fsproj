@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>_2024</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="DayOne\PartTwo.fs" />
+    <Content Include="dayone\Input.txt" />
+    <Compile Include="DayOne\PartOne.fs" />
+    <Content Include="fortnite.txt" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,10 @@
-﻿let input = "....XXMAS.
+﻿module DayFourPartOne
+
+// ---------------------------
+// Does not work yet!
+// ---------------------------
+
+let input = "....XXMAS.
 .SAMXMS...
 ...S..A...
 ..A.A.MS.X
@@ -22,6 +28,9 @@ let width = (Seq.toArray verticalLines).Length
 
 let x = (height, width)
 
+// ---------------------------
+// Does not work yet!
+// ---------------------------
 let getDiagonalCoords(xCoordiante : int, yCoordiante : int) =
     // Formula: Coord height - y coordinate = amount of result coordinates
     let iterations = height - yCoordiante

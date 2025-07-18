@@ -1,4 +1,6 @@
-﻿open System.IO
+﻿module DayFivePartOne
+
+open System.IO
 
 //let input = "47|53
 //97|13

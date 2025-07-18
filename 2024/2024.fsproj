@@ -7,10 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="DayThree\input.txt" />
+    <Compile Include="DayThree\PartTwo.fs" />
+    <Compile Include="DayThree\PartOne.fs" />
+    <Content Include="DayTwo\fortnite.txt" />
+    <Compile Include="DayTwo\PartOne.fs" />
     <Compile Include="DayOne\PartTwo.fs" />
     <Content Include="dayone\Input.txt" />
+    <Content Include="input.txt" />
     <Compile Include="DayOne\PartOne.fs" />
-    <Content Include="fortnite.txt" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

@@ -1,4 +1,6 @@
-﻿open System.IO
+﻿module DayThreePartTwo
+
+open System.IO
 open System.Text.RegularExpressions
 
 let input = File.ReadAllText "./Input.txt"

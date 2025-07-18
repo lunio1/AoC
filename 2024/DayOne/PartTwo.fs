@@ -1,4 +1,4 @@
-﻿module PartTwo
+﻿module DayOnePartTwo
 
 open System.IO
 

@@ -1,5 +1,6 @@
 ﻿namespace _2024CS.DaySix;
 
+// Not working!
 internal class PartTwo
 {
   public static void Main()

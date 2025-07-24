@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DayEight\PartTwo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="DayEight\PartTwo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="input.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
